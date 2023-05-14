@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.0.1] - 2023-05-14
+
 ### Fixed
 
 - Fixed shelling out on linuxes with simple shells

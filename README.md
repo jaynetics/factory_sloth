@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/factory_sloth.svg)](http://badge.fury.io/rb/factory_sloth)
 [![Build Status](https://github.com/jaynetics/factory_sloth/actions/workflows/tests.yml/badge.svg)](https://github.com/jaynetics/factory_sloth/actions)
+[![Coverage](https://codecov.io/gh/jaynetics/factory_sloth/branch/main/graph/badge.svg?token=W6UJA0F8WO)](https://codecov.io/gh/jaynetics/factory_sloth)
 
 `factory_sloth` is too lazy to write to the database.
 
