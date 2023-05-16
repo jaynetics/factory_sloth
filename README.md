@@ -60,6 +60,9 @@ The `conflict` case is rare. It only happens if individual examples were green a
 
 - only works with RSpec so far
 - downgrades create calls that never run (e.g. in skipped examples)
+- downgrades create calls that are only checked for an absence of effects
+  - e.g. `a = create(:a); b = create(:b); expect(Record.filtered).to eq [b]`
+  - `# sloth:disable` / `# sloth:enable` comments can be used to control this
 
 ## Development
 

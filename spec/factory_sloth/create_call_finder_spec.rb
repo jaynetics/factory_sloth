@@ -1,6 +1,4 @@
 describe FactorySloth::CreateCallFinder, '::call' do
-  count = ->(code){ described_class.call(code: code).count }
-
   it 'works for create calls on the main object' do
     expect(described_class.call(code: 'create')).to eq [[1, 0]]
   end
@@ -45,6 +43,25 @@ describe FactorySloth::CreateCallFinder, '::call' do
       self.create
       create!
       FactoryBot.create_factory
+    RUBY
+  end
+
+  it 'ignores create calls with a sloth:disable comment in the same line' do
+    expect(described_class.call(code: <<~RUBY)).to eq [[1, 0], [3, 0]]
+      create(:foo)
+      create(:foo) # sloth:disable
+      create(:foo)
+    RUBY
+  end
+
+  it 'ignores create calls after a line-leading sloth:disable comment' do
+    expect(described_class.call(code: <<~RUBY)).to eq [[1, 0], [6, 0]]
+      create(:foo)
+      # sloth:disable
+      create(:foo)
+      create(:foo)
+      # sloth:enable
+      create(:foo)
     RUBY
   end
 end
