@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.2.0] - 2023-05-16
+
 ### Added
 
 - Added support for magic comments `# sloth:disable`, `# sloth:enable`
