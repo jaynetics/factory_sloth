@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Added
+
+- Added summary at end of CLI output
+
 ## [1.0.1] - 2023-05-14
 
 ### Fixed

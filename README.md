@@ -50,9 +50,16 @@ Processing spec/models/user_spec.rb ...
 Processing spec/weird_dir/crazy_spec.rb ...
 - create in line 8 can be replaced with build_stubbed
 🔴 33 create calls found, 0 replaced (conflict)
+
+Scanned 4 files, found 2 unnecessary create calls across 1 files and 1 broken specs
 ```
 
 The `conflict` case is rare. It only happens if individual examples were green after changing them, but at least one example failed when evaluating the whole file after all changes. This probably means that some other example was red even before making changes, or that something else is wrong with this spec file, e.g. some examples depend on other examples' side effects.
+
+## Limitations
+
+- only works with RSpec so far
+- downgrades create calls that never run (e.g. in skipped examples)
 
 ## Development
 

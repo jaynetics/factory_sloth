@@ -8,12 +8,8 @@ module FactorySloth
       args = option_parser.parse!(argv)
       specs = SpecPicker.call(paths: args)
       forced_files = @force ? specs : args
-      bad_specs = FileProcessor.call(files: specs, forced_files: forced_files, dry_run: @lint)
-
-      if @lint && bad_specs.any?
-        warn "Found unnecessary create calls in:\n#{bad_specs.join("\n")}"
-        exit 1
-      end
+      results = FileProcessor.call(files: specs, forced_files: forced_files, dry_run: @lint)
+      print_summary(results)
     end
 
     private
@@ -49,6 +45,22 @@ module FactorySloth
           puts opts
           exit
         end
+      end
+    end
+
+    def print_summary(results)
+      unnecessary_call_count = results.values.sum { |v| v[:changed_create_calls].count }
+      changed_specs = results.keys.select { |path| results[path][:changed_create_calls].any? }
+      broken_specs = results.keys.select { |path| !results[path][:ok] }
+      stats = "Scanned #{results.count} files, found #{unnecessary_call_count}"\
+              " unnecessary create calls across #{changed_specs.count} files"\
+              "#{" and #{broken_specs.count} broken specs" if broken_specs.any?}"
+
+      if @lint && unnecessary_call_count > 0
+        warn "#{stats}:\n#{(changed_specs + broken_specs).join("\n")}"
+        exit 1
+      else
+        puts stats
       end
     end
   end

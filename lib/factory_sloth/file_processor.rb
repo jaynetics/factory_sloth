@@ -3,7 +3,7 @@ module FactorySloth
     extend self
 
     def call(files:, forced_files: [], dry_run: false)
-      files.select do |path|
+      files.each_with_object({}) do |path, acc|
         puts "Processing #{path} ..."
 
         if DoneTracker.done?(path) && !forced_files.include?(path)
@@ -11,9 +11,9 @@ module FactorySloth
           next
         end
 
-        bad_creates_found = process(path, dry_run: dry_run)
+        result = process(path, dry_run: dry_run)
+        acc[path] = { ok: result.ok?, changed_create_calls: result.changed_create_calls }
         DoneTracker.mark_as_done(path)
-        bad_creates_found
       end
     end
 
@@ -26,7 +26,7 @@ module FactorySloth
         File.write(path, result.patched_code) if result.changed?
       end
       puts result_message(result, dry_run), ''
-      result.changed?
+      result
     end
 
     def result_message(result, dry_run)
