@@ -17,8 +17,6 @@ describe FactorySloth::CLI, '::call' do
     result = File.read(temp_path)
     expect(result).not_to eq input
     expect(result).to include 'build(:optional_create)'
-  ensure
-    File.unlink(temp_path) if File.exist?(temp_path)
   end
 
   it 'forces processing when given individual files, even if done previously' do
