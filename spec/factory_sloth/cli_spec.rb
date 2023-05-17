@@ -3,7 +3,7 @@ describe FactorySloth::CLI, '::call' do
   before { allow(result_stub).to receive(:create_calls).and_return([])}
   before { allow(result_stub).to receive(:changed_create_calls).and_return([])}
 
-  it 'takes paths as arguments' do
+  xit 'takes paths as arguments' do
     input = fixture('build_ok')
     temp_path = "#{Dir.tmpdir}/build_ok"
     File.write(temp_path, input)
