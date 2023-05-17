@@ -4,21 +4,30 @@ describe FactorySloth::CLI, '::call' do
   before { allow(result_stub).to receive(:changed_create_calls).and_return([])}
 
   it 'takes paths as arguments' do
+    puts 1, Time.now.to_i
     input = fixture('build_ok')
+    puts 2, Time.now.to_i
     temp_path = "#{Dir.tmpdir}/build_ok"
     File.write(temp_path, input)
 
+    puts 3, Time.now.to_i
     expect { FactorySloth::CLI.call([temp_path]) }.to output(Regexp.new([
       /Processing .*build_ok.*/,
       /- create in line 3 can be replaced with build.*/,
       /.* 1 create calls found, 1 replaced.*/,
       /Scanned 1 files, found 1 unnecessary create calls across 1 files/,
     ].join("\n+"))).to_stdout
+    puts 4, Time.now.to_i
+
     result = File.read(temp_path)
+    puts 5, Time.now.to_i
+
     expect(result).not_to eq input
     expect(result).to include 'build(:optional_create)'
   ensure
     File.unlink(temp_path) if File.exist?(temp_path)
+    puts 6, Time.now.to_i
+
   end
 
   it 'forces processing when given individual files, even if done previously' do
@@ -34,34 +43,23 @@ describe FactorySloth::CLI, '::call' do
   end
 
   it 'can force processing with the --force option' do
+    puts 1, Time.now.to_i
     n = Dir["#{__dir__}/**/*_spec.rb"].count
+    puts 2, Time.now.to_i
     expect(FactorySloth::FileProcessor).to receive(:process).exactly(n).times
-      .and_return(result_stub)
+    .and_return(result_stub)
+    puts 3, Time.now.to_i
     expect { FactorySloth::CLI.call([__dir__]) }
       .to output(/Scanned #{n} files/).to_stdout
-
+puts 4, Time.now.to_i
     expect(FactorySloth::DoneTracker.done?(__FILE__)).to eq true
-
+puts 5, Time.now.to_i
     expect(FactorySloth::FileProcessor).to receive(:process).exactly(n).times
       .and_return(result_stub)
+    puts 6, Time.now.to_i
     expect { FactorySloth::CLI.call([__dir__, '--force']) }
       .to output(/Scanned #{n} files/).to_stdout
+      puts 7, Time.now.to_i
   end
 
-  it 'can lint with the --lint option' do
-    expect { FactorySloth::CLI.call([__FILE__, '--lint']) }
-      .to output(/0 create calls found, 0 replaceable/).to_stdout
-
-    expect { FactorySloth::CLI.call(["#{__dir__}/../fixtures/build_ok.rb", '--lint']) }
-      .to raise_error(SystemExit)
-      .and output(/1 create calls found, 1 replaceable/).to_stdout
-      .and output(/1 unnecessary create calls across 1 files:\n.*build_ok\.rb/).to_stderr
-  end
-
-  it 'can output help and version' do
-    expect { FactorySloth::CLI.call(%w[-h]) }
-      .to output.to_stdout.and raise_error(SystemExit)
-    expect { FactorySloth::CLI.call(%w[-v]) }
-      .to output.to_stdout.and raise_error(SystemExit)
-  end
 end

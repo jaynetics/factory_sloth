@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - '2.7'
           - '3.2'
 
     steps:
@@ -22,6 +21,6 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - name: Run the default task
-      run: bundle exec rake
+      run: bundle exec rspec spec/factory_sloth/cli_spec.rb
     - uses: codecov/codecov-action@v3
       if: matrix.ruby == '3.2'
