@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.2.1] - 2023-05-17
+
 ### Fixed
 
 - Fixed handling of path-based, derived spec metadata
