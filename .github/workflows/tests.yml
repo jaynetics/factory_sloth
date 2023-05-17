@@ -22,6 +22,6 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - name: Run the default task
-      run: bundle exec rake
+      run: bundle exec rspec --profile 5
     - uses: codecov/codecov-action@v3
       if: matrix.ruby == '3.2'
