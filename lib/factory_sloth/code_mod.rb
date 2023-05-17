@@ -68,12 +68,14 @@ class FactorySloth::CodeMod
       ; defined?(FactoryBot) && defined?(RSpec) && RSpec.configure do |config|
         executed_lines = []
 
-        FactoryBot::Syntax::Methods.prepend Module.new {
+        FactoryBot::Syntax::Methods.class_eval do
+          alias ___original_#{variant} #{variant}
+
           define_method("#{variant}") do |*args, **kwargs, &blk|
             executed_lines << caller_locations(1, 1)&.first&.lineno
-            super(*args, **kwargs, &blk)
+            ___original_#{variant}(*args, **kwargs, &blk)
           end
-        }
+        end
 
         config.after(:suite) do
           executed_lines.include?(#{line}) ||
