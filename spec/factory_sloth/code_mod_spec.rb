@@ -60,6 +60,15 @@ describe FactorySloth::CodeMod, '::call' do
     expect(result.patched_code).to eq input
   end
 
+  it 'does nothing for create calls that are never executed' do
+    input = fixture('skipped_calls')
+    result = described_class.call('a/path', input)
+    expect(result).to be_ok
+    expect(result.create_count).to eq 4
+    expect(result.change_count).to eq 0
+    expect(result.patched_code).to eq input
+  end
+
   it 'does nothing for files without create calls' do
     input = fixture('zero_create_calls')
     result = described_class.call('a/path', input)

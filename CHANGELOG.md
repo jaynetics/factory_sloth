@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### Fixed
+
+- Fixed handling of path-based, derived spec metadata
+  - Thanks to https://github.com/bquorning
+- Fixed unnecessary spec runs for files without create calls or changes
+- Fixed modification of factory calls that never run (e.g. in skipped examples)
+
 ## [1.2.0] - 2023-05-16
 
 ### Added

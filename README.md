@@ -56,13 +56,17 @@ Scanned 4 files, found 2 unnecessary create calls across 1 files and 1 broken sp
 
 The `conflict` case is rare. It only happens if individual examples were green after changing them, but at least one example failed when evaluating the whole file after all changes. This probably means that some other example was red even before making changes, or that something else is wrong with this spec file, e.g. some examples depend on other examples' side effects.
 
-## Limitations
+## Limitations / known issues
 
-- only works with RSpec so far
-- downgrades create calls that never run (e.g. in skipped examples)
-- downgrades create calls that are only checked for an absence of effects
-  - e.g. `a = create(:a); b = create(:b); expect(Record.filtered).to eq [b]`
-  - `# sloth:disable` / `# sloth:enable` comments can be used to control this
+FactorySloth only works with RSpec so far. It also generates false positives in cases where create calls are done but only the *absence* of any effect is tested, e.g.:
+
+```ruby
+user1 = create(:user, in_search: true)
+user2 = create(:user, in_search: false)
+expect(User.searchable).to eq(user1)
+```
+
+This test will still pass if `user2` is no longer inserted into the database, leading factory_sloth to believe that `build` suffices here. However, this makes the test no longer assert the same thing. `# sloth:disable` / `# sloth:enable` comments can be used to prevent `factory_sloth` from making such changes. If you have a good idea about how to detect such cases automatically, let me know :)
 
 ## Development
 
