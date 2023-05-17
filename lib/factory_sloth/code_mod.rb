@@ -1,11 +1,12 @@
 class FactorySloth::CodeMod
-  attr_reader :create_calls, :changed_create_calls, :original_code, :patched_code
+  attr_reader :create_calls, :changed_create_calls, :path, :original_code, :patched_code
 
-  def self.call(code)
-    new(code).tap(&:call)
+  def self.call(path, code)
+    new(path, code).tap(&:call)
   end
 
-  def initialize(code)
+  def initialize(path, code)
+    self.path = path
     self.original_code = code
     self.patched_code = code
   end
@@ -23,7 +24,7 @@ class FactorySloth::CodeMod
       end.sort
 
     # validate whole spec after changes, e.g. to detect side-effects
-    self.ok = FactorySloth::SpecRunner.call(patched_code)
+    self.ok = FactorySloth::SpecRunner.call(path, patched_code)
     self.changed_create_calls.clear unless ok?
     self.patched_code = original_code unless ok?
   end
@@ -46,12 +47,12 @@ class FactorySloth::CodeMod
 
   private
 
-  attr_writer :create_calls, :changed_create_calls, :ok, :original_code, :patched_code
+  attr_writer :create_calls, :changed_create_calls, :ok, :path, :original_code, :patched_code
 
   def try_patch(line, col, variant)
     new_patched_code =
       patched_code.sub(/\A(?:.*\n){#{line - 1}}.{#{col}}\Kcreate/, variant)
-    if FactorySloth::SpecRunner.call(new_patched_code, line: line)
+    if FactorySloth::SpecRunner.call(path, new_patched_code, line: line)
       puts "- create in line #{line} can be replaced with #{variant}"
       self.patched_code = new_patched_code
     end

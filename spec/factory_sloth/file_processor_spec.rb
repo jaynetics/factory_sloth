@@ -1,6 +1,6 @@
 describe FactorySloth::FileProcessor, '::call' do
   let(:files) { [__FILE__] }
-  let(:result_stub) { FactorySloth::CodeMod.new('dummy_code') }
+  let(:result_stub) { FactorySloth::CodeMod.new('a/path', 'dummy_code') }
 
   it 'processes files only once by default' do
     expect(described_class).to receive(:process).and_return(result_stub)
@@ -16,7 +16,7 @@ describe FactorySloth::FileProcessor, '::call' do
       allow(result_stub).to receive(:changed_create_calls).and_return([[0, 0]] * changes)
       allow(result_stub).to receive(:ok?).and_return(ok)
       expect(File).to receive(:read).and_return :foo
-      expect(FactorySloth::CodeMod).to receive(:call).with(:foo).and_return(result_stub)
+      expect(FactorySloth::CodeMod).to receive(:call).with('x', :foo).and_return(result_stub)
       expect do
         described_class.call(files: ['x'], forced_files: ['x'], dry_run: true)
       end.to output(ok ? /\d create calls found/ : /conflict/).to_stdout
