@@ -1,5 +1,5 @@
 describe FactorySloth::CLI, '::call' do
-  let(:result_stub) { FactorySloth::CodeMod.new('dummy_code') }
+  let(:result_stub) { FactorySloth::CodeMod.new('a/path', 'dummy_code') }
   before { allow(result_stub).to receive(:create_calls).and_return([])}
   before { allow(result_stub).to receive(:changed_create_calls).and_return([])}
 

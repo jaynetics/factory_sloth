@@ -21,7 +21,7 @@ module FactorySloth
 
     def process(path, dry_run:)
       code = File.read(path)
-      result = CodeMod.call(code)
+      result = CodeMod.call(path, code)
       unless dry_run
         File.write(path, result.patched_code) if result.changed?
       end
