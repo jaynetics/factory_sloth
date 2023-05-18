@@ -44,7 +44,7 @@ Processing spec/lib/string_ext_spec.rb ...
 
 Processing spec/models/user_spec.rb ...
 - create in line 3 can be replaced with build
-- create in line 4 can be replaced with build
+- create_list in line 4 can be replaced with build_list
 🟢 3 create calls found, 2 replaced
 
 Processing spec/weird_dir/crazy_spec.rb ...
@@ -63,7 +63,7 @@ The `conflict` case is rare. It only happens if individual examples were green a
 ```ruby
 user1 = create(:user, in_search: true)
 user2 = create(:user, in_search: false)
-expect(User.searchable).to eq(user1)
+expect(User.searchable).to eq [user1]
 ```
 
 This test will still pass if `user2` is no longer inserted into the database, leading `factory_sloth` to believe that `build` suffices here. However, this change makes the test no longer assert the same thing and reduces coverage. Magic comments can be used to prevent `factory_sloth` from making such changes. `factory_sloth` will not touch lines with inline `# sloth:disable` comments, or sections framed in `# sloth:disable` / `# sloth:enable` comments. If you have a good idea about how to detect such cases automatically, let me know :)
