@@ -66,7 +66,7 @@ user2 = create(:user, in_search: false)
 expect(User.searchable).to eq [user1]
 ```
 
-This test will still pass if `user2` is no longer inserted into the database, leading `factory_sloth` to believe that `build` suffices here. However, this change makes the test no longer assert the same thing and reduces coverage. Magic comments can be used to prevent `factory_sloth` from making such changes. `factory_sloth` will not touch lines with inline `# sloth:disable` comments, or sections framed in `# sloth:disable` / `# sloth:enable` comments. If you have a good idea about how to detect such cases automatically, let me know :)
+This test will still pass if `user2` is no longer inserted into the database, leading `factory_sloth` to believe that `build` suffices for `user2`. However, this change makes the test no longer assert the same thing and reduces coverage. Magic comments can be used to prevent `factory_sloth` from making such changes. `factory_sloth` will not touch lines with inline `# sloth:disable` comments, or sections framed in `# sloth:disable` / `# sloth:enable` comments. If you have a good idea about how to detect such cases automatically, let me know :)
 
 You might also notice that `factory_sloth` converts create calls for records that end up being persisted later. Consider:
 
