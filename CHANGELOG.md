@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.2.2] - 2023-05-18
+
 ### Fixed
 
 - No longer changes create to build for records that are persisted later
