@@ -1,3 +1,4 @@
+require 'open3'
 require 'tmpdir'
 
 module FactorySloth::SpecRunner
@@ -7,7 +8,11 @@ module FactorySloth::SpecRunner
       FileUtils.mkdir_p(File.dirname(path))
       File.write(path, spec_code)
       path_arg = [path, line].compact.map(&:to_s).join(':')
-      !!system("bundle exec rspec #{path_arg} --fail-fast --order defined 1>/dev/null 2>&1")
+      command = "bundle exec rspec #{path_arg} --fail-fast --order defined 2>&1"
+      _output, status = Open3.capture2(command)
+      status
+    end
+  end
     end
   end
 end

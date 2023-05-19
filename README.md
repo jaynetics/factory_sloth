@@ -58,25 +58,21 @@ The `conflict` case is rare. It only happens if individual examples were green a
 
 ## Limitations / known issues
 
-`factory_sloth` only works with RSpec so far. It also generates **false positives** in cases where create calls are done but only the *absence* of any effect is tested, e.g.:
+`factory_sloth` only works with RSpec so far. It also works best with unit tests such as model specs. It generates **false positives** in cases where create calls are done but only the *absence* of any effect is tested, e.g.:
 
 ```ruby
-user1 = create(:user, in_search: true)
-user2 = create(:user, in_search: false)
-expect(User.searchable).to eq [user1]
+user = create(:user)
+User.delete_all
+expect(User.count).to eq 0
 ```
 
-This test will still pass if `user2` is no longer inserted into the database, leading `factory_sloth` to believe that `build` suffices for `user2`. However, this change makes the test no longer assert the same thing and reduces coverage. Magic comments can be used to prevent `factory_sloth` from making such changes. `factory_sloth` will not touch lines with inline `# sloth:disable` comments, or sections framed in `# sloth:disable` / `# sloth:enable` comments. If you have a good idea about how to detect such cases automatically, let me know :)
-
-You might also notice that `factory_sloth` converts create calls for records that end up being persisted later. Consider:
+This test will still pass if `user` is never inserted into the database in the first place, leading `factory_sloth` to believe that `build` suffices here. However, this change makes the test no longer assert the same thing and reduces coverage. Magic comments can be used to prevent `factory_sloth` from making such changes. `factory_sloth` will not touch lines with inline `# sloth:disable` comments, or sections framed in `# sloth:disable` / `# sloth:enable` comments. Another option is to write the test in a different (and arguably more assertive) way, e.g.:
 
 ```ruby
-post = create(:post)
-comment = create(:comment, post: post)
-expect(Post.commented.count).to eq 1
+expect { User.delete_all }.to change { User.count }.from(1).to(0)
 ```
 
-In this case, `factory_sloth` might turn `create(:post)` into `build(:post)` because `create(:comment, post: post)` will persist the post anyway. This is considered reasonable behavior for now.
+If you have a good idea about how to detect such cases automatically, let me know :)
 
 ## Development
 

@@ -2,6 +2,7 @@
 
 ### Fixed
 
+- No longer changes create to build for records that are persisted later
 - Fixed duplicate entries in `.factory_sloth_done` file
 
 ## [1.2.1] - 2023-05-17

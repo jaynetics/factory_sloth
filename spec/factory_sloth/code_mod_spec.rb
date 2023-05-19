@@ -62,9 +62,29 @@ describe FactorySloth::CodeMod, '::call' do
 
   it 'does nothing for create calls that are never executed' do
     input = fixture('skipped_calls')
+
+    # should abort after trying build and not waste time with trying build_stubbed
+    expect_any_instance_of(described_class).to receive(:try_patch)
+      .exactly(4).times.with(anything, 'build').and_call_original
+
     result = described_class.call('a/path', input)
+
     expect(result).to be_ok
     expect(result.create_count).to eq 4
+    expect(result.change_count).to eq 0
+    expect(result.patched_code).to eq input
+  end
+
+  it 'does nothing for create calls where the record is persisted later' do
+    input = fixture('persisted_later')
+
+    # should abort after trying build and not waste time with trying build_stubbed
+    expect_any_instance_of(described_class).to receive(:try_patch)
+      .once.with(anything, 'build').and_call_original
+
+    result = described_class.call('a/path', input)
+    expect(result).to be_ok
+    expect(result.create_count).to eq 1
     expect(result.change_count).to eq 0
     expect(result.patched_code).to eq input
   end
