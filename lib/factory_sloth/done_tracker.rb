@@ -7,6 +7,8 @@ module FactorySloth::DoneTracker
 
   def mark_as_done(path)
     normalized_path = normalize(path)
+    return if done?(normalized_path)
+
     done << normalized_path
     File.open(file, 'a') { |f| f.puts(normalized_path) }
   end
