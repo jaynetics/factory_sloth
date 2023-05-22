@@ -7,8 +7,7 @@ module FactorySloth
     def call(argv = ARGV)
       args = option_parser.parse!(argv)
       specs = SpecPicker.call(paths: args)
-      forced_files = @force ? specs : args
-      results = FileProcessor.call(files: specs, forced_files: forced_files, dry_run: @lint)
+      results = FileProcessor.call(files: specs, forced_files: args)
       print_summary(results)
     end
 
@@ -29,11 +28,16 @@ module FactorySloth
         opts.separator 'Options:'
 
         opts.on('-f', '--force', "Ignore #{DoneTracker.file}") do
-          @force = true
+          FactorySloth.force = true
         end
 
         opts.on('-l', '--lint', 'Dont fix, just list bad create calls') do
-          @lint = true
+          FactorySloth.dry_run = true
+          FactorySloth.lint = true
+        end
+
+        opts.on('-V', '--verbose', 'Verbose output, useful for debugging') do
+          FactorySloth.verbose = true
         end
 
         opts.on('-v', '--version', 'Show gem version') do
@@ -49,14 +53,14 @@ module FactorySloth
     end
 
     def print_summary(results)
-      unnecessary_call_count = results.values.sum { |v| v[:changed_create_calls].count }
-      changed_specs = results.keys.select { |path| results[path][:changed_create_calls].any? }
+      change_sum = results.values.sum { |v| v[:change_count] }
+      changed_specs = results.keys.select { |path| results[path][:change_count] > 0 }
       broken_specs = results.keys.select { |path| !results[path][:ok] }
-      stats = "Scanned #{results.count} files, found #{unnecessary_call_count}"\
+      stats = "Scanned #{results.count} files, found #{change_sum}"\
               " unnecessary create calls across #{changed_specs.count} files"\
               "#{" and #{broken_specs.count} broken specs" if broken_specs.any?}"
 
-      if @lint && unnecessary_call_count > 0
+      if FactorySloth.lint && change_sum > 0
         warn "#{stats}:\n#{(changed_specs + broken_specs).join("\n")}"
         exit 1
       else

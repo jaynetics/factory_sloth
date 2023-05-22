@@ -27,6 +27,7 @@ Examples:
 Options:
     -f, --force                      Ignore ./.factory_sloth_done
     -l, --lint                       Dont fix, just list bad create calls
+    -V, --verbose                    Verbose output, useful for debugging
     -v, --version                    Show gem version
     -h, --help                       Show this help
 ```
@@ -36,20 +37,25 @@ Options:
 While running, `factory_sloth` produces output like this:
 
 ```
-Processing spec/features/sign_up_spec.rb ...
-🟡 2 create calls found, 0 replaced
+🟡 spec/features/sign_up_spec.rb: 2 create calls found, 0 replaced
 
-Processing spec/lib/string_ext_spec.rb ...
-⚪️ 0 create calls found, 0 replaced
+⚪️ spec/lib/string_ext_spec.rb: 0 create calls found, 0 replaced
 
-Processing spec/models/user_spec.rb ...
-- create in line 3 can be replaced with build
-- create_list in line 4 can be replaced with build_list
-🟢 3 create calls found, 2 replaced
+spec/models/user_spec.rb:3:2: create replaced with build
+  expect(create(:user)).not_to be_nil
+         ^^^^^^
 
-Processing spec/weird_dir/crazy_spec.rb ...
-- create in line 8 can be replaced with build_stubbed
-🔴 33 create calls found, 0 replaced (conflict)
+spec/models/user_spec.rb:4:2: create_list replaced with build_list
+  expect(create_list(:user, 2).count).to eq 2
+          ^^^^^^^^^^^
+
+🟢 spec/models/user_spec.rb: 3 create calls found, 2 replaced
+
+spec/weird_dir/crazy_spec.rb:8:4: create replaced with build_stubbed
+  expect(create(:user)).not_to be_nil
+         ^^^^^^
+
+🔴 spec/weird_dir/crazy_spec.rb: 33 create calls found, 0 replaced (conflict)
 
 Scanned 4 files, found 2 unnecessary create calls across 1 files and 1 broken specs
 ```

@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Added
+
+- nicer output
+- verbose mode
+
 ## [1.2.2] - 2023-05-18
 
 ### Fixed

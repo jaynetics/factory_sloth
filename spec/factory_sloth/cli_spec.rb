@@ -9,11 +9,14 @@ describe FactorySloth::CLI, '::call' do
     File.write(temp_path, input)
 
     expect { FactorySloth::CLI.call([temp_path]) }.to output(Regexp.new([
-      /Processing .*build_ok.*/,
-      /- create in line 3 can be replaced with build.*/,
-      /.* 1 create calls found, 1 replaced.*/,
-      /Scanned 1 files, found 1 unnecessary create calls across 1 files/,
-    ].join("\n+"))).to_stdout
+      /.*build_ok:3:12: create replaced with build/,
+      Regexp.escape('  expect(create(:optional_create)).not_to be_nil'),
+      Regexp.escape('         ^^^^^^'),
+      '',
+      /.*build_ok: 1 create calls found, 1 replaced/,
+      '',
+      'Scanned 1 files, found 1 unnecessary create calls across 1 files'
+    ].join("\n"))).to_stdout
     result = File.read(temp_path)
     expect(result).not_to eq input
     expect(result).to include 'build(:optional_create)'
@@ -58,7 +61,19 @@ describe FactorySloth::CLI, '::call' do
       .and output(/1 unnecessary create calls across 1 files:\n.*build_ok\.rb/).to_stderr
   end
 
-  it 'can output help and version' do
+  it 'can run in --verbose mode' do
+    input = fixture('build_ok')
+    temp_path = "#{Dir.tmpdir}/build_ok"
+    File.write(temp_path, input)
+
+    expect { FactorySloth::CLI.call([temp_path, '--verbose']) }
+      .to change { FactorySloth.verbose }.to(true)
+      .and output(/1 create calls found, 1 replaced/).to_stdout
+  ensure
+    File.unlink(temp_path) if File.exist?(temp_path)
+  end
+
+  it 'can output --help and --version' do
     expect { FactorySloth::CLI.call(%w[-h]) }
       .to output.to_stdout.and raise_error(SystemExit)
     expect { FactorySloth::CLI.call(%w[-v]) }

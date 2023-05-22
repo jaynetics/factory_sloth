@@ -98,3 +98,15 @@ describe FactorySloth::CodeMod, '::call' do
     expect(result.patched_code).to eq input
   end
 end
+
+describe FactorySloth::CodeMod, '#message' do
+  it 'can render a message for all result permutations' do
+    [true, false].product([0, 1, 2], [0, 1, 2]) do |(ok, changes, creates)|
+      codemod = described_class.new('foo', 'bar')
+      allow(codemod).to receive(:create_calls).and_return([[0, 0]] * creates)
+      allow(codemod).to receive(:changed_create_calls).and_return([[0, 0]] * changes)
+      allow(codemod).to receive(:ok?).and_return(ok)
+      expect(codemod.message).to match(ok ? /\d create calls found/ : /conflict/)
+    end
+  end
+end

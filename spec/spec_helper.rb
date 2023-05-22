@@ -18,7 +18,10 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.before { FactorySloth::DoneTracker.reset }
+  config.before do
+    FactorySloth::DoneTracker.reset
+    FactorySloth.instance_variables.each { |iv| FactorySloth.remove_instance_variable(iv) }
+  end
 end
 
 def fixture(name)

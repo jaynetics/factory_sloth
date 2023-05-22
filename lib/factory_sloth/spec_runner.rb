@@ -8,8 +8,14 @@ module FactorySloth::SpecRunner
     File.write(path, spec_code)
     path_arg = [path, line].compact.map(&:to_s).join(':')
     command = "bundle exec rspec #{path_arg} --fail-fast --order defined 2>&1"
-    _output, status = Open3.capture2(command)
-    status
+    output, process_status = Open3.capture2(command)
+    Result.new(output: output, process_status: process_status)
+  end
+
+  Result = Struct.new(:output, :process_status, keyword_init: true) do
+    require 'forwardable'
+    extend Forwardable
+    def_delegators :process_status, :exitstatus, :success?
   end
 
   def self.tmpdir
