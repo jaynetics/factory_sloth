@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.3.1] - 2023-05-24
+
 ### Fixed
 
 - Stop trying to patch lines with multiple create calls, which was unreliable
