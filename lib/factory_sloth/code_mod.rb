@@ -22,17 +22,7 @@ module FactorySloth
     def call
       self.create_calls = CreateCallFinder.call(code: original_code)
 
-      # Performance note: it might be faster to write ALL possible patches for a
-      # given spec file to tempfiles first, and then run them all in a single
-      # rspec call. However, this would make it impossible to use `--fail-fast`,
-      # and might make examples fail that are not as idempotent as they should be.
-      self.changed_create_calls =
-        create_calls.sort_by { |call| [-call.line, -call.column] }.select do |call|
-          build_result = try_patch(call, 'build')
-          next if build_result == ABORT
-
-          build_result == SUCCESS || try_patch(call, 'build_stubbed') == SUCCESS
-        end
+      self.changed_create_calls = find_changeable_create_calls
 
       # validate whole spec after changes, e.g. to detect side-effects
       self.ok = changed_create_calls.none? || begin
@@ -65,6 +55,27 @@ module FactorySloth
 
     attr_writer :create_calls, :changed_create_calls, :ok, :path, :original_code, :patched_code
 
+    # Performance note: it might be faster to write ALL possible patches for a
+    # given spec file to tempfiles first, and then run them all in a single
+    # rspec call. However, this would make it impossible to use `--fail-fast`,
+    # and might make examples fail that are not as idempotent as they should be.
+    def find_changeable_create_calls
+      lines = create_calls.map(&:line)
+
+      self.changed_create_calls =
+        create_calls.sort_by { |call| [-call.line, -call.column] }.select do |call|
+          if lines.count(call.line) > 1
+            print_call_info(call, 'multiple create calls per line are unsupported, skipping')
+            next
+          end
+
+          build_result = try_patch(call, 'build')
+          next if build_result == ABORT
+
+          build_result == SUCCESS || try_patch(call, 'build_stubbed') == SUCCESS
+        end
+    end
+
     def try_patch(call, base_variant)
       variant = call.name.sub('create', base_variant)
       FactorySloth.verbose && puts("#{link_to_call(call)}: trying #{variant} ...")
@@ -79,14 +90,14 @@ module FactorySloth
 
       if result.success?
         info = FactorySloth.dry_run ? 'can be replaced' : 'replaced'
-        puts call_message(call, "#{info} with #{variant}"), ''
+        print_call_info(call, "#{info} with #{variant}")
         self.patched_code = new_patched_code
         SUCCESS
       elsif result.exitstatus == ExecutionCheck::FACTORY_UNUSED_CODE
-        puts call_message(call, "is never executed, skipping"), ''
+        print_call_info(call, "is never executed, skipping")
         ABORT
       elsif result.exitstatus == ExecutionCheck::FACTORY_PERSISTED_LATER_CODE
-        FactorySloth.verbose && puts("Record is persisted later, skipping")
+        FactorySloth.verbose && print_call_info("record is persisted later, skipping")
         ABORT
       end
     end
@@ -100,13 +111,17 @@ module FactorySloth
     ABORT = :ABORT # returned if there is no need to try other variants
     SUCCESS = :SUCCESS
 
-    def call_message(call, message)
+    def print_call_info(call, message)
       line_content = original_code[/\A(?:.*\R){#{call.line - 1}}\K.*/]
-      indent = line_content[/^\s*/]
+      indentation = line_content[/^\s*/]
+      underline = Color.yellow('^' * call.name.size)
 
-      "#{link_to_call(call)}: #{call.name} #{message}\n"\
-      "  #{line_content.delete_prefix(indent)}\n"\
-      "  #{' ' * (call.column - indent.size)}#{Color.yellow('^' * call.name.size)}"
+      puts(
+        "#{link_to_call(call)}: #{call.name} #{message}",
+        "  #{line_content.delete_prefix(indentation)}",
+        "  #{' ' * (call.column - indentation.size)}#{underline}",
+        "",
+      )
     end
 
     def link_to_call(call)

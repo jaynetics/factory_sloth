@@ -14,8 +14,12 @@ module FactorySloth::Color
   private
 
   def colorize(str, color_code)
-    return str unless $stdout.is_a?(IO) && $stdout.tty?
+    return str unless tty?
 
     "\e[#{color_code}m#{str}\e[0m"
+  end
+
+  def tty?
+    $stdout.is_a?(IO) && $stdout.tty?
   end
 end

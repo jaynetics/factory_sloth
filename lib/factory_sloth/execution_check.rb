@@ -4,6 +4,10 @@
 # The rationale behind a) is that things like skipped examples should not
 # be broken. The rationale behind b) is that not much DB work would be saved,
 # but diff noise would be increased and ease of editing the example reduced.
+#
+# Note: the caller column is only available in a roundabout way in Ruby >= 3.1,
+# https://bugs.ruby-lang.org/issues/17930, 19452, so multiple replacements
+# in one line would not be validated correctly iff they had mixed validity.
 
 module FactorySloth::ExecutionCheck
   FACTORY_UNUSED_CODE          = 77
@@ -15,10 +19,10 @@ module FactorySloth::ExecutionCheck
         records_by_line = {} # track records initialized through factories per line
 
         FactoryBot::Syntax::Methods.class_eval do
-          alias ___original_#{variant} #{variant} # e.g. ___original_build build
+          original_variant = instance_method("#{variant}") # e.g. build
 
-          define_method("#{variant}") do |*args, **kwargs, &blk| # e.g. build
-            result = ___original_#{variant}(*args, **kwargs, &blk)
+          define_method("#{variant}") do |*args, **kwargs, &blk|
+            result = original_variant.bind_call(self, *args, **kwargs, &blk)
             list = records_by_line[caller_locations(1, 1)&.first&.lineno] ||= []
             list.concat([result].flatten) # to work with single, list, and pair
             result

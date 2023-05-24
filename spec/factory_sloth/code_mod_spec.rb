@@ -89,6 +89,20 @@ describe FactorySloth::CodeMod, '::call' do
     expect(result.patched_code).to eq input
   end
 
+  it 'does nothing for lines with multiple create calls' do
+    # see comment in ExecutionCheck
+    input = fixture('inlined_creates')
+
+    # should not try to build
+    expect_any_instance_of(described_class).not_to receive(:try_patch)
+
+    result = described_class.call('a/path', input)
+    expect(result).to be_ok
+    expect(result.create_count).to eq 3
+    expect(result.change_count).to eq 0
+    expect(result.patched_code).to eq input
+  end
+
   it 'does nothing for files without create calls' do
     input = fixture('zero_create_calls')
     result = described_class.call('a/path', input)

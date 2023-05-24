@@ -1,11 +1,15 @@
 ## [Unreleased]
 
+### Fixed
+
+- Stop trying to patch lines with multiple create calls, which was unreliable
+
 ## [1.3.0] - 2023-05-22
 
 ### Added
 
-- nicer output
-- verbose mode
+- Nicer output
+- Verbose mode
 
 ## [1.2.2] - 2023-05-18
 
