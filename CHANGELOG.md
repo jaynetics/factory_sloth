@@ -2,6 +2,8 @@
 
 ### Added
 
+## [1.4.0] - 2024-10-04
+
 - ignore underscore-prefixed assignments e.g. `_user = create(:user)`
 
 ## [1.3.1] - 2023-05-24
