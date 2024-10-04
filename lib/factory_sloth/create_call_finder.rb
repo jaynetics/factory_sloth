@@ -17,19 +17,32 @@ class FactorySloth::CreateCallFinder < Ripper
 
   def store_call(obj)
     @calls << obj if obj.is_a?(FactorySloth::CreateCall) && !@disabled
+    obj
   end
 
   def on_ident(name, *)
-    %w[create create_list create_pair].include?(name) &&
-      FactorySloth::CreateCall.new(name: name, line: lineno, column: column)
+    return name unless %w[create create_list create_pair].include?(name)
+
+    FactorySloth::CreateCall.new(name: name, line: lineno, column: column)
   end
 
-  def on_call(mod, _, obj, *)
-    store_call(obj) if mod == 'FactoryBot'
+  def on_assign(left, right)
+    if left.to_s.match?(/\A_/) &&
+       !FactorySloth.check_underscore_vars &&
+       [right, Array(right).last].any? { |v| v.is_a?(FactorySloth::CreateCall) }
+      @calls.pop
+    end
+    [left, right]
   end
 
-  def on_command_call(mod, _, obj, *)
-    store_call(obj) if mod == 'FactoryBot'
+  def on_call(mod, op, method, *args)
+    store_call(method) if mod == 'FactoryBot'
+    [mod, op, method, *args]
+  end
+
+  def on_command_call(mod, op, method, *args)
+    store_call(method) if mod == 'FactoryBot'
+    [mod, op, method, *args]
   end
 
   def on_comment(text, *)

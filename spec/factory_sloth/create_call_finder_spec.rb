@@ -89,4 +89,16 @@ describe FactorySloth::CreateCallFinder, '::call' do
       FactorySloth::CreateCall.new(name: 'create', line: 6, column: 0),
     ]
   end
+
+  it 'ignores create calls where the result is assigned to an underscore-prefixed variable' do
+    result = described_class.call(code: <<~RUBY)
+      create(:foo)
+      _thing = create(:foo)
+      create(:foo)
+    RUBY
+    expect(result).to eq [
+      FactorySloth::CreateCall.new(name: 'create', line: 1, column: 0),
+      FactorySloth::CreateCall.new(name: 'create', line: 3, column: 0),
+    ]
+  end
 end

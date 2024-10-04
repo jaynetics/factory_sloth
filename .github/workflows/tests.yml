@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - '2.7'
-          - '3.2'
+          - '3.0'
+          - '3.3'
 
     steps:
     - uses: actions/checkout@v3
@@ -27,4 +27,4 @@ jobs:
     - name: Run the default task
       run: bundle exec rake
     - uses: codecov/codecov-action@v3
-      if: matrix.ruby == '3.2'
+      if: matrix.ruby == '3.3'

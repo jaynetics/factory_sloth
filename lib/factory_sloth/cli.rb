@@ -36,6 +36,10 @@ module FactorySloth
           FactorySloth.lint = true
         end
 
+        opts.on('-u', '--underscore', 'Check underscore-prefixed variables') do
+          FactorySloth.check_underscore_vars = true
+        end
+
         opts.on('-V', '--verbose', 'Verbose output, useful for debugging') do
           FactorySloth.verbose = true
         end

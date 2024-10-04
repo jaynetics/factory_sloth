@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Added
+
+- ignore underscore-prefixed assignments e.g. `_user = create(:user)`
+
 ## [1.3.1] - 2023-05-24
 
 ### Fixed

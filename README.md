@@ -27,6 +27,7 @@ Examples:
 Options:
     -f, --force                      Ignore ./.factory_sloth_done
     -l, --lint                       Dont fix, just list bad create calls
+    -u, --underscore                 Check underscore-prefixed variables
     -V, --verbose                    Verbose output, useful for debugging
     -v, --version                    Show gem version
     -h, --help                       Show this help
@@ -79,6 +80,16 @@ expect { User.delete_all }.to change { User.count }.from(1).to(0)
 ```
 
 If you have a good idea about how to detect such cases automatically, let me know :)
+
+### Underscore-prefixed variable names
+
+Prefixing a variable name with an underscore is a common way of saying "I am creating this for side effects":
+
+```ruby
+_user = create(:user)
+```
+
+Therefore `factory_sloth` ignores such cases by default. Use the `-u` flag to check such cases as well.
 
 ## Development
 

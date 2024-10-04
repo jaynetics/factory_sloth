@@ -1,5 +1,11 @@
 module FactorySloth
-  singleton_class.attr_accessor :dry_run, :force, :lint, :verbose
+  singleton_class.attr_accessor(*%i[
+    check_underscore_vars
+    dry_run
+    force
+    lint
+    verbose
+  ])
 end
 
 require_relative 'factory_sloth/cli'
